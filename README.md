@@ -804,3 +804,253 @@ for (int k1 = 0; k1 < 10; k1++)
     }
 }
 ```
+#NTT and powerNTT limit
+```cpp
+#define N (int)1000000+2
+#include <bits/stdc++.h>
+using namespace std;
+#define ll long long
+ll  fact[N], invFact[N];
+ll MOD = 998244353; //998244353
+ll power(ll b, ll p) {
+    ll ret = 1;
+    while (p) {
+        if (p & 1) ret = (ret * b) % MOD;
+        b = (b * b) % MOD;
+        p >>= 1;
+    }
+    return ret;
+}
+ll mulInv(ll x) {
+    return power(x, MOD - 2);
+}
+void f() {
+    fact[0] = 1;
+    for (int i = 1; i < N; i++) {
+        fact[i] = (i * fact[i - 1]) % MOD;
+    }
+}
+void pre(){
+    invFact[N-1] = power(fact[N-1], MOD-2);
+    for(int i=N-2; i >= 0; i--)invFact[i] = (1LL * (i + 1) * invFact[i + 1]) %MOD;
+}
+ 
+ 
+const ll mod = 998244353, root = 3; // = 998244353
+int modpow(int b, int e, int m) {
+    int ans = 1;
+    for (; e; b = (ll)b * b % m, e /= 2)
+        if (e & 1) ans = (ll)ans * b % m;
+    return ans;
+}
+ 
+void ntt(vector<int> &a) {
+    int n = (int)a.size(), L = 31 - __builtin_clz(n);
+    vector<int> rt(2, 1); // erase the static if you want to use two moduli;
+    for (int k = 2, s = 2; k < n; k *= 2, s++) { // erase the static if you want to use two moduli;
+        rt.resize(n);
+        int z[] = {1, modpow(root, mod >> s, mod)};
+        for (int i = k; i < 2*k; ++i) rt[i] = (ll)rt[i / 2] * z[i & 1] % mod;
+    }
+    vector<int> rev(n);
+    for (int i = 0; i < n; ++i) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
+    for (int i = 0; i < n; ++i) if (i < rev[i]) swap(a[i], a[rev[i]]);
+    for (int k = 1; k < n; k *= 2) {
+        for (int i = 0; i < n; i += 2 * k) {
+            for (int j = 0; j < k; ++j) {
+                int z = (ll)rt[j + k] * a[i + j + k] % mod, &ai = a[i + j];
+                a[i + j + k] = ai - z + (z > ai ? mod : 0);
+                ai += (ai + z >= mod ? z - mod : z);
+            }
+        }
+    }
+}
+vector<int> conv(const vector<int> &a, const vector<int> &b) {
+    if (a.empty() || b.empty()) return {};
+    int s = (int)a.size() + (int)b.size() - 1, B = 32 - __builtin_clz(s), n = 1 << B;
+    int inv = modpow(n, mod - 2, mod);
+    vector<int> L(a), R(b), out(n);
+    L.resize(n), R.resize(n);
+    ntt(L), ntt(R);
+    for (int i = 0; i < n; ++i) out[-i & (n - 1)] = (ll)L[i] * R[i] % mod * inv % mod;
+    ntt(out);
+    return {out.begin(), out.begin() + s};
+}
+ 
+vector<int> fft_power(vector<int> a, int p, int lim) {
+    vector<int> ret (1,1);
+    while (p) {
+        if (p & 1) ret = conv(ret, a);
+         a = conv( a,  a);
+        if (ret.size() > lim) ret.resize(lim);
+        if (a.size() > lim) a.resize(lim);
+        p >>= 1;
+    }
+    return ret;
+}
+ 
+//vector<int>v(N);
+void solve()
+{
+    ll n , h , t;
+    cin >> n >> h >> t;
+    ll minv = mulInv(1000000);
+    vector<int>poly(h+1,0);
+    for (int i = 0; i < n; ++i) {
+        int p,d;
+        cin >>p >>d;
+        poly[d] += ((p*minv )%MOD);
+        poly[d] %= MOD;
+    }
+ 
+    vector<int> vec = fft_power(poly,t, h+1);
+    // cin >> q;
+    int prob = 0;
+    for (int i = 0; i < h; ++i) {
+        prob += vec[i];
+        prob %= MOD;
+    }
+    cout<< (1-prob + MOD )%MOD<<el;
+}
+```
+#SACK
+```cpp
+vector<int> adj[N];
+ll mp[N];
+ll anso = 0, counto = 0;
+int sons[N], big[N], val[N];
+// string ch;
+// segment_tree<ll> tree1 = segment_tree<ll>(N, [](const int& a, const int& b) {return a + b;}, 0);
+// vector<pair<int, int>> quer[N];
+void pre(int node , int p){
+    sons[node] = 1;
+    for(auto v : adj[node]) {
+        if(v == p) continue;
+        pre(v, node);
+        sons[node] += sons[v];
+        if(sons[v] > sons[big[node]]) {
+            big[node] = v;
+        }
+    }
+}
+void collect(int node, int p, int d) {
+    for(auto x : myset[node]){
+        mp[x] += d;
+        if(d == 1){
+            if(mp[x] == 1){
+                counto++;
+            }
+        }else{
+            if(mp[x] == 0){
+                counto--;
+            }
+        }
+    }
+ 
+    for (auto v : adj[node]) {
+        if (v == p) continue;
+        collect(v, node, d);
+    }
+}
+void dfs(int node, int p, bool keep) {
+//    cout<< node<<" "<<p<<" "<<keep<<el;
+    for (auto v : adj[node]) {
+        if (v == p) continue;
+        if(v != big[node]) dfs(v, node, false);
+    }
+    if (big[node]) dfs(big[node], node, true);
+    for (auto v : adj[node]) {
+        if (v == p || v == big[node]) continue;
+        collect(v, node, 1);
+    }
+ 
+    for(auto x : myset[node]){
+        mp[x]++;
+        if(mp[x] == 1){
+            counto++;
+        }
+    }
+ 
+    if(counto%2)anso++;
+//    cout<<node<<" "<<anso<<el;
+    if(!keep){
+        collect(node, p, -1);
+    }
+}
+void solve()
+{
+    int n;
+    cin >> n;
+    for(int i = 1; i <= n; i++) {
+        cin >> val[i];
+        prime_factorization(i , val[i]);
+    }
+    for(int i = 2; i <= n; i++) {
+        int x , y;
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+    }
+ 
+    pre(1, -1);
+    dfs(1, -1, true);
+    cout<< anso <<el;
+ 
+ 
+    // cout << el;
+}
+```
+#dfs tree get bridges
+```cpp
+ll n, m, V;
+vector<ll> adj[N], takenNodes;
+ll tin[N], low[N], timer, col[N], arr[N] ;
+bool visited[N];
+set<pair<int, int>> bridges, bcc;
+ 
+void dfs(int node, int p){
+    visited[node] = true;
+    tin[node] = low[node] = ++timer;
+    for (int v : adj[node]) {
+        if (v == p) continue; // skip parent edge
+        if (visited[v]) {
+            // back edge
+            low[node] = min(low[node], tin[v]);
+        } else {
+            dfs(v, node);
+            low[node] = min(low[node], low[v]);
+            if (low[v] > tin[node]) {
+                // (node, v) is a bridge
+                bridges.insert({node, v});
+            }
+        }
+    }
+}
+void solve()
+{
+    cin >> n >> m;
+ 
+    for (int i = 0; i < m; i++) {
+        ll u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    dfs(1, -1);
+    if(bridges.size()) {
+        cout << 0 << el;
+    }else{
+        for(auto it : bcc){
+            cout << it.first << " " << it.second << el;
+        }
+    }
+ 
+    for (int i = 0; i <= n; i++) {
+        adj[i].clear();
+        visited[i] = false;
+        tin[i] = low[i] = 0;
+        col[i] = 0;
+    }
+    bridges.clear();
+    timer = 0;
+}
+```

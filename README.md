@@ -36,7 +36,8 @@ Vertex* update(Vertex* v, int tl, int tr, int pos, int new_val) {
         return new Vertex(new_val);
     int tm = (tl + tr) / 2;
     if (pos <= tm)
-        return new Vertex(update(v->l, tl, tm, pos, new_val), v->r);
+        return new Vertex(update(v->l, tl, tm, pos, new_val),
+			 v->r);
     else
         return new Vertex(v->l, update(v->r, tm+1, tr, pos, new_val));
 }
@@ -64,7 +65,8 @@ Vertex* update(Vertex* v, int tl, int tr, int pos) {
 int find_kth(Vertex* vl, Vertex *vr, int tl, int tr, int k) {
     if (tl == tr)
         return tl;
-    int tm = (tl + tr) / 2, left_count = vr->l->sum - vl->l->sum;
+    int tm = (tl + tr) / 2, left_count = vr->l->sum
+				- vl->l->sum;
     if (left_count >= k)
         return find_kth(vl->l, vr->l, tl, tm, k);
     return find_kth(vl->r, vr->r, tm+1, tr, k-left_count);
@@ -80,7 +82,7 @@ vector<int> graph[200001];
 int fir[200001], sec[200001], ans[200001];
 
 void dfs1(int node = 1, int parent = 0) {
-	for (int i : graph[node])
+	for (int i: graph[node])
 		if (i != parent) {
 			dfs1(i, node);
 			if (fir[i] + 1 > fir[node]) {
@@ -96,7 +98,8 @@ void dfs2(int node = 1, int parent = 0, int to_p = 0) {
 	ans[node] = max(to_p, fir[node]);
 	for (int i: graph[node])
 		if (i != parent) {
-			if (fir[i] + 1 == fir[node]) dfs2(i, node, max(to_p, sec[node]) + 1);
+			if (fir[i] + 1 == fir[node])
+				dfs2(i, node, max(to_p, sec[node]) + 1);
 			else dfs2(i, node, ans[node] + 1);
 		}
 }
@@ -114,7 +117,8 @@ int main() {
 	}
 	dfs1();
 	dfs2();
-	for (int i = 1; i <= n; i++) cout << ans[i] << ' ';
+	for (int i = 1; i <= n; i++)
+		cout << ans[i] << ' ';
 	return 0;
 }
 ```
@@ -143,7 +147,8 @@ int get_sz(int v,int p) {
 int get_centroid(int v,int p,int cur_sz) {
     for (auto u:g[v]) {
         if (u==p || is_removed[u])continue;
-        if (sz[u]*2>cur_sz) return get_centroid(u,v,cur_sz);
+        if (sz[u]*2>cur_sz)
+			return get_centroid(u,v,cur_sz);
     }
     return v;
 }
@@ -227,7 +232,8 @@ int get_sz(int v,int p) {
 int get_centroid(int v,int p,int cur_sz) {
     for (auto u:g[v]) {
         if (u==p || is_removed[u])continue;
-        if (sz[u]*2>cur_sz) return get_centroid(u,v,cur_sz);
+        if (sz[u]*2>cur_sz)
+			return get_centroid(u,v,cur_sz);
     }
     return v;
 }
@@ -307,7 +313,8 @@ struct Pair {
     ll val;
     int id;
     bool operator<(const Pair& other) const {
-        if (val != other.val) return val < other.val;
+        if (val != other.val)
+			return val < other.val;
         return id < other.id;
     }
 };
@@ -436,7 +443,10 @@ int main() {
 using namespace __gnu_pbds;
 using namespace std;
 template <typename T>
-using ordered_set = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
+using ordered_set = tree<T,
+null_type,less<T>
+,rb_tree_tag
+,tree_order_statistics_node_update>;
 const ll N=500+5,INF=1e18;
 ll n,m;
 ll capacity[N][N];
@@ -662,7 +672,8 @@ struct segtree{
     {
         build_x(0,0,size);
     }
-    void update_y(int x, int lx, int rx, int y, int ly, int ry, int a, int b, int new_val) {
+    void update_y(int x, int lx, int rx, int y, int ly,
+				int ry, int a, int b, int new_val) {
         if (ly == ry-1) {
             if (lx == rx-1)
             {
@@ -681,7 +692,8 @@ struct segtree{
         }
     }
 
-    void update_x(int x, int lx, int rx, int a, int b, int new_val) {
+    void update_x(int x, int lx, int rx, int a,
+					int b, int new_val) {
     if (lx != rx-1) {
         int mx = (lx + rx) / 2;
         if (a < mx)
@@ -704,7 +716,8 @@ struct segtree{
         return sum_y(x, y*2+1, tly, tmy, ly, ry)
             + sum_y(x, y*2+2, tmy, try_, ly, ry);
     }
-    int sum_x(int x, int tlx, int trx, int lx, int rx, int ly, int ry) {
+    int sum_x(int x, int tlx, int trx,
+			int lx, int rx, int ly, int ry) {
         if (tlx>=rx||trx<=lx)
             return 0;
         if (lx <= tlx && trx <= rx)
@@ -772,7 +785,10 @@ int f[N][N][10][10];
     {
         int k1 = std::__lg(r - l);
         int k2 = std::__lg(u - d);
-        return std::max({f[l][d][k1][k2], f[r - (1 << k1)][d][k1][k2], f[l][u - (1 << k2)][k1][k2], f[r - (1 << k1)][u - (1 << k2)][k1][k2]});
+        return std::max({f[l][d][k1][k2],
+				f[r - (1 << k1)][d][k1][k2],
+			f[l][u - (1 << k2)][k1][k2],
+			f[r - (1 << k1)][u - (1 << k2)][k1][k2]});
     }
     // build
     for (int i = 0; i < n; i++)
@@ -793,11 +809,15 @@ for (int k1 = 0; k1 < 10; k1++)
             {
                 if (k1 == 0 && j + (2 << k2) <= m)
                 {
-                    f[i][j][k1][k2 + 1] = std::max(f[i][j][k1][k2], f[i][j + (1 << k2)][k1][k2]);
+                    f[i][j][k1][k2 + 1] = std::max(
+					f[i][j][k1][k2],
+					f[i][j + (1 << k2)][k1][k2]);
                 }
                 if (i + (2 << k1) <= n)
                 {
-                    f[i][j][k1 + 1][k2] = std::max(f[i][j][k1][k2], f[i + (1 << k1)][j][k1][k2]);
+                    f[i][j][k1 + 1][k2] =
+					std::max(f[i][j][k1][k2],
+					 f[i + (1 << k1)][j][k1][k2]);
                 }
             }
         }
@@ -832,7 +852,8 @@ void f() {
 }
 void pre(){
     invFact[N-1] = power(fact[N-1], MOD-2);
-    for(int i=N-2; i >= 0; i--)invFact[i] = (1LL * (i + 1) * invFact[i + 1]) %MOD;
+    for(int i=N-2; i >= 0; i--)
+	invFact[i] = (1LL * (i + 1) * invFact[i + 1]) %MOD;
 }
  
  
@@ -846,19 +867,25 @@ int modpow(int b, int e, int m) {
  
 void ntt(vector<int> &a) {
     int n = (int)a.size(), L = 31 - __builtin_clz(n);
-    vector<int> rt(2, 1); // erase the static if you want to use two moduli;
-    for (int k = 2, s = 2; k < n; k *= 2, s++) { // erase the static if you want to use two moduli;
+    vector<int> rt(2, 1);
+		// erase the static if you want to use two moduli;
+    for (int k = 2, s = 2; k < n; k *= 2, s++) {
+			// erase the static if you want to use two moduli;
         rt.resize(n);
         int z[] = {1, modpow(root, mod >> s, mod)};
-        for (int i = k; i < 2*k; ++i) rt[i] = (ll)rt[i / 2] * z[i & 1] % mod;
+        for (int i = k; i < 2*k; ++i)
+		rt[i] = (ll)rt[i / 2] * z[i & 1] % mod;
     }
     vector<int> rev(n);
-    for (int i = 0; i < n; ++i) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
-    for (int i = 0; i < n; ++i) if (i < rev[i]) swap(a[i], a[rev[i]]);
+    for (int i = 0; i < n; ++i)
+		rev[i] = (rev[i / 2] | (i & 1) << L) / 2;
+    for (int i = 0; i < n; ++i)
+		if (i < rev[i]) swap(a[i], a[rev[i]]);
     for (int k = 1; k < n; k *= 2) {
         for (int i = 0; i < n; i += 2 * k) {
             for (int j = 0; j < k; ++j) {
-                int z = (ll)rt[j + k] * a[i + j + k] % mod, &ai = a[i + j];
+                int z = (ll)rt[j + k] * a[i + j + k] % mod,
+					 &ai = a[i + j];
                 a[i + j + k] = ai - z + (z > ai ? mod : 0);
                 ai += (ai + z >= mod ? z - mod : z);
             }
@@ -867,12 +894,14 @@ void ntt(vector<int> &a) {
 }
 vector<int> conv(const vector<int> &a, const vector<int> &b) {
     if (a.empty() || b.empty()) return {};
-    int s = (int)a.size() + (int)b.size() - 1, B = 32 - __builtin_clz(s), n = 1 << B;
+    int s = (int)a.size() + (int)b.size() - 1,
+		 B = 32 - __builtin_clz(s), n = 1 << B;
     int inv = modpow(n, mod - 2, mod);
     vector<int> L(a), R(b), out(n);
     L.resize(n), R.resize(n);
     ntt(L), ntt(R);
-    for (int i = 0; i < n; ++i) out[-i & (n - 1)] = (ll)L[i] * R[i] % mod * inv % mod;
+    for (int i = 0; i < n; ++i)
+		out[-i & (n - 1)] = (ll)L[i] * R[i] % mod * inv % mod;
     ntt(out);
     return {out.begin(), out.begin() + s};
 }
@@ -920,7 +949,9 @@ ll mp[N];
 ll anso = 0, counto = 0;
 int sons[N], big[N], val[N];
 // string ch;
-// segment_tree<ll> tree1 = segment_tree<ll>(N, [](const int& a, const int& b) {return a + b;}, 0);
+// segment_tree<ll> tree1 =
+ segment_tree<ll>(N, [](const int& a, const int& b)
+ {return a + b;}, 0);
 // vector<pair<int, int>> quer[N];
 void pre(int node , int p){
     sons[node] = 1;
